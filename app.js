@@ -1,74 +1,35 @@
 const express = require('express');
-const path = require('path');
-const { S3Client, ListObjectsV2Command, GetObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-require('dotenv').config();
+const session = require('express-session');
+const uploadRouter = require('./routes/upload');
+const listRouter = require('./routes/list');
+const deleteRouter = require('./routes/delete');
+const authRouter = require('./routes/auth');
 
 const app = express();
 const port = 3000;
 
-// AWS S3の設定
-const bucketName = 'slidelibrary'; // あなたのバケット名を指定
-const region = 'ap-northeast-1'; // バケットのリージョン
-const prefix = 'あこちゃん/2024運動会コアラ組/'; // プレフィックス
+// JSONリクエストを処理するミドルウェア
+app.use(express.json());
 
-// S3クライアントを初期化
-const s3 = new S3Client({
-  region: region,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID, // .envファイルに設定
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // .envファイルに設定
-  },
-});
-
-// 静的ファイルを配信する設定
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ルート
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// S3の画像リストと署名付きURLを取得するエンドポイント
-app.get('/list-images', async (req, res) => {
-  try {
-    const command = new ListObjectsV2Command({
-      Bucket: bucketName,
-      Prefix: prefix,
-    });
-
-    const data = await s3.send(command);
-
-    if (!data.Contents) {
-      res.json({
-        message: 'No images found in the specified prefix.',
-        images: [],
-      });
-      return;
-    }
-
-    // 署名付きURLを生成
-    const imageUrls = await Promise.all(
-      data.Contents.map(async (item) => {
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: bucketName,
-          Key: item.Key,
-        });
-        return await getSignedUrl(s3, getObjectCommand, { expiresIn: 3600 }); // URL有効期限: 3600秒
-      })
-    );
-
-    res.json({
-      message: 'Images retrieved successfully',
-      imageUrls, // 署名付きURLをクライアントに返す
-    });
-  } catch (error) {
-    console.error('Error listing images:', error);
-    res.status(500).send('Error retrieving images from S3.');
+// セッションのミドルウェアを設定
+app.use(session({
+  secret: process.env.SESSION_SERCRET_KEY, // セッションを保護するための秘密キー
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false, // HTTPSを使用する場合は true に設定
+    httpOnly: true, // JavaScriptからアクセスできないようにする
+    maxAge: 1000 * 60 * 60 * 24 * 365 * 3 // 1年間の有効期限
   }
-});
+}));
 
-// サーバーの起動
+// ルートを設定
+app.use('/upload', uploadRouter);
+app.use('/list', listRouter);
+app.use('/delete', deleteRouter);
+app.use('/', authRouter); // 認証関連のルートを追加
+
+// サーバー起動
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });
