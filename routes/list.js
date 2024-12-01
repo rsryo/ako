@@ -9,13 +9,16 @@ router.get('/', isAuthenticated, async (req, res) => {
     const bucketName = 'slidelibrary';
     const prefix = req.query.prefix || '';
 
-    const data = await listFiles(bucketName, prefix);
-    const fileList = data.Contents ? data.Contents.map(item => item.Key) : [];
+    // listFiles関数を呼び出し、署名付きURLを含む画像リストを取得
+    const imageList = await listFiles(bucketName, prefix);
 
-    res.status(200).json({ files: fileList });
+    res.status(200).json({
+      message: 'Images retrieved successfully',
+      images: imageList,
+    });
   } catch (error) {
     console.error('Error listing files:', error);
-    res.status(500).json({ error: 'Error retrieving file list.' });
+    res.status(500).json({ error: 'Error retrieving image list.' });
   }
 });
 
