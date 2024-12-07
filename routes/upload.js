@@ -6,25 +6,29 @@ const { isAuthenticated } = require('./auth');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/', isAuthenticated, upload.single('file'), async (req, res) => {
+// 複数ファイルを受け取るように変更
+router.post('/', isAuthenticated, upload.array('files'), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded.' });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded.' });
     }
 
     const bucketName = 'slidelibrary';
-    const prefix = 'AppleTest/テスト/';
-    const key = `${prefix}${req.file.originalname}`;
+    const prefix = req.query.prefix || '';
 
-    await uploadFile(bucketName, key, req.file.buffer, req.file.mimetype);
+    // 各ファイルをアップロード
+    const uploadPromises = req.files.map(file => {
+      const key = `${prefix}${file.originalname}`;
+      return uploadFile(bucketName, key, file.buffer, file.mimetype);
+    });
 
-    res.status(200).json({ message: 'File uploaded successfully', key });
+    await Promise.all(uploadPromises);
+
+    res.status(200).json({ message: 'Files uploaded successfully' });
   } catch (error) {
-    console.error('Error uploading file:', error);
-    res.status(500).json({ error: 'Error uploading file.' });
+    console.error('Error uploading files:', error);
+    res.status(500).json({ error: 'Error uploading files.' });
   }
 });
 
 module.exports = router;
-
-//複数ファイルのアップロード

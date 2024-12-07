@@ -48,6 +48,31 @@ async function listFiles(bucketName, prefix) {
   }
 }
 
+// フォルダ一覧を取得する
+async function listFolders(bucketName, prefix) {
+  try {
+    const params = {
+      Bucket: bucketName,
+      Prefix: prefix,
+      Delimiter: '/' // フォルダを区切るために使用
+    };
+
+    const command = new ListObjectsV2Command(params);
+    const data = await s3.send(command);
+
+    // CommonPrefixes が undefined の場合を考慮
+    if (!data.CommonPrefixes) {
+      return [];
+    }
+
+    const folders = data.CommonPrefixes.map(item => item.Prefix);
+    console.log('Folders:', folders);
+    return folders;
+  } catch (err) {
+    console.error('Error listing folders:', err);
+    throw new Error('Error listing folders');
+  }
+}
 // ファイル削除
 async function deleteFile(bucketName, key) {
   const command = new DeleteObjectCommand({
@@ -57,4 +82,4 @@ async function deleteFile(bucketName, key) {
   return s3.send(command);
 }
 
-module.exports = { uploadFile, listFiles, deleteFile };
+module.exports = { uploadFile, listFiles,listFolders, deleteFile };
