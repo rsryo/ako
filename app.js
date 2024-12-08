@@ -9,7 +9,7 @@ const authRouter = require('./routes/auth');
 const cors = require('cors');
 
 const app = express();
-const port = 4000;
+const port = 5000;
 
 // JSONリクエストを処理するミドルウェア
 app.use(express.json());
