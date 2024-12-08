@@ -16,7 +16,7 @@ app.use(express.json());
 
 // CORSの設定
 app.use(cors({
-  origin: '*', // フロントエンドのURLを指定
+  origin: 'https://akolibrary.org', // フロントエンドのURLを指定
   credentials: true, // クッキーなどの認証情報を含むリクエストを許可
 }));
 
