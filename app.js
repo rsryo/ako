@@ -10,13 +10,15 @@ const cors = require('cors');
 
 const app = express();
 const port = 5000;
+const domain = process.env.DOMAIN
+const frontPort = process.env.FRONT_PORT
 
 // JSONリクエストを処理するミドルウェア
 app.use(express.json());
 
 // CORSの設定
 app.use(cors({
-  origin: 'https://akolibrary.org', // フロントエンドのURLを指定
+  origin: `http://${domain}:${frontPort}`, // フロントエンドのURLを指定
   credentials: true, // クッキーなどの認証情報を含むリクエストを許可
 }));
 
@@ -41,6 +43,6 @@ app.use('/prefix', prefixRouter);
 app.use('/', authRouter); // 認証関連のルートを追加
 
 // サーバー起動
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${port}`);
+app.listen(port, `${domain}`, () => {
+  console.log(`Server running on http://${domain}:${port}`);
 });

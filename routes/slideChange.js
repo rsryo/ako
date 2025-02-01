@@ -1,5 +1,5 @@
 const express = require('express');
-const { uploadFile } = require('../services/s3Operations');
+const { uploadFile, selectSlideData } = require('../services/s3Operations');
 const { isAuthenticated } = require('./auth');
 
 const router = express.Router();
@@ -22,6 +22,23 @@ router.put('/', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error updating file:', error);
     res.status(500).json({ error: 'Error updating file' });
+  }
+});
+
+// `GET`リクエストでファイル内容を取得
+// ルートの修正（S3のファイルを取得）
+router.get('/select', isAuthenticated, async (req, res) => {
+  try {
+    const bucketName = 'slidelibrary';
+    const key = 'あこちゃん/selectedAlbum.txt';
+
+    // S3 からファイルを取得
+    const fileContent = await selectSlideData(bucketName, key);
+
+    res.status(200).json({ content: fileContent });
+  } catch (error) {
+    console.error('Error retrieving file:', error);
+    res.status(500).json({ error: 'Error retrieving file' });
   }
 });
 

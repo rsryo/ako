@@ -82,4 +82,32 @@ async function deleteFile(bucketName, key) {
   return s3.send(command);
 }
 
-module.exports = { uploadFile, listFiles,listFolders, deleteFile };
+//設定されているスライドショーを取得
+async function selectSlideData(bucketName, key) {
+  const command = new GetObjectCommand({
+    Bucket: bucketName,
+    Key: key // 取得したいファイル名を指定
+  });
+
+  // ストリームを文字列に変換する関数
+  async function streamToString(stream) {
+    const chunks = [];
+    for await (const chunk of stream) {
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks).toString("utf-8");
+  }
+
+  try {
+    const response = await s3.send(command);
+    const body = await streamToString(response.Body);
+    console.log("取得した内容:", body);
+    
+    return body;
+  } catch (error) {
+    console.error("エラー:", error);
+    return null;
+  }
+}
+
+module.exports = { uploadFile, listFiles,listFolders, deleteFile, selectSlideData };
