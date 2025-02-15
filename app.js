@@ -29,7 +29,8 @@ app.use(session({
   cookie: {
     secure: false, // HTTPSを使用する場合は true に設定
     httpOnly: true, // JavaScriptからアクセスできないようにする
-    maxAge: 1000 * 60 * 60 * 24 * 365 * 3 // 1年間の有効期限
+    maxAge: 1000 * 60 * 60 * 24 * 365 * 3, // 1年間の有効期限
+    sameSite: 'None'
   }
 }));
 
