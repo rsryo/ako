@@ -11,15 +11,15 @@ const cors = require('cors');
 const app = express();
 const port = 5000;
 
-// JSONリクエストを処理するミドルウェア
-app.use(express.json());
-
 // CORSの設定
 app.use(cors({
   origin: 'http://akolibrary.s3-website-ap-northeast-1.amazonaws.com',  // フロントエンドのURLを指定
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // 許可するHTTPメソッド
   credentials: true, // クッキーなどの認証情報を含むリクエストを許可
 }));
+
+// JSONリクエストを処理するミドルウェア
+app.use(express.json());
 
 // セッションのミドルウェアを設定
 app.use(session({
