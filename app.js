@@ -13,7 +13,7 @@ const port = 5000;
 
 // CORSの設定
 app.use(cors({
-  origin: 'http://akolibrary.s3-website-ap-northeast-1.amazonaws.com',  // フロントエンドのURLを指定
+  origin: 'https://akolibrary.net',  // フロントエンドのURLを指定
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // 許可するHTTPメソッド
   credentials: true, // クッキーなどの認証情報を含むリクエストを許可
 }));
@@ -43,5 +43,5 @@ app.use('/', authRouter); // 認証関連のルートを追加
 
 // サーバー起動
 app.listen(port, () => {
-  console.log(`Server running on http://:${port}`);
+  console.log(`Server running on http://`);
 });
