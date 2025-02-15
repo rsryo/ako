@@ -3,6 +3,8 @@ const session = require('express-session');
 
 const router = express.Router();
 
+app.set('trust proxy', true);  // リバースプロキシを信頼
+
 // セッションのミドルウェアを設定
 router.use(session({
   secret: process.env.SESSION_SERCRET_KEY, // セッションを保護するための秘密キー

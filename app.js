@@ -11,6 +11,8 @@ const cors = require('cors');
 const app = express();
 const port = 5000;
 
+app.set('trust proxy', true);  // リバースプロキシを信頼
+
 // CORSの設定
 app.use(cors({
   origin: 'https://akolibrary.net',  // フロントエンドのURLを指定
