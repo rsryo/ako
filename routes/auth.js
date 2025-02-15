@@ -52,6 +52,8 @@ router.post('/api/logout', (req, res) => {
 
 // 認証状態を確認するAPI
 router.get('/api/auth-status', (req, res) => {
+  const protocol = req.get('X-Forwarded-Proto');  // X-Forwarded-Protoヘッダーを取得
+  console.log('リクエストのプロトコル:', protocol);  // 'https' または 'http' が表示されるはず
   if (req.session.isAuthenticated) {
     res.status(200).json({ isAuthenticated: true });
   } else {
