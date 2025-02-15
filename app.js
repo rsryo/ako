@@ -15,7 +15,7 @@ const port = 5000;
 app.use(cors({
   origin: 'https://akolibrary.net',  // フロントエンドのURLを指定
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // 許可するHTTPメソッド
-  credentials: false, // クッキーなどの認証情報を含むリクエストを許可
+  credentials: true, // クッキーなどの認証情報を含むリクエストを許可
 }));
 
 // JSONリクエストを処理するミドルウェア
