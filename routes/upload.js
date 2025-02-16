@@ -11,13 +11,17 @@ const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 最大10MB
+    fileSize: 100000 * 1024 * 1024, // 最大10GB
     files: 300,  // 最大300枚のファイルを受け取る
   },
 });
 
 // 非同期タスクを処理するためのバックグラウンドキュー
 const fileUploadQueue = new Queue('file-upload', 'redis://127.0.0.1:6379');
+
+fileUploadQueue.on('error', (err) => {
+  console.error('Error connecting to Redis:', err);
+});
 
 // 複数ファイルを受け取るように変更
 router.post('/', isAuthenticated, upload.array('files'), async (req, res) => {
