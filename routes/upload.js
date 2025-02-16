@@ -36,7 +36,8 @@ router.post('/', isAuthenticated, upload.array('files'), async (req, res) => {
     // 画像のアップロード処理をバックグラウンドで非同期に実行
     const fileUploadPromises = req.files.map((file) => {
       return fileUploadQueue.add({
-        file: file,
+        fileBuffer: file.buffer,
+        fileName: file.originalname,
         prefix: prefix,
         bucketName: bucketName,
       });
@@ -55,12 +56,12 @@ router.post('/', isAuthenticated, upload.array('files'), async (req, res) => {
 // バックグラウンドでの画像処理とアップロード処理
 fileUploadQueue.process(async (job, done) => {
   try {
-    const { file, prefix, bucketName } = job.data;
+    const { fileBuffer, fileName, prefix, bucketName } = job.data;
 
-    const key = `${prefix}${file.originalname}`;
+    const key = `${prefix}${fileName}`;
 
     // Sharpで画像をリサイズ・圧縮
-    const optimizedBuffer = await sharp(file.buffer)
+    const optimizedBuffer = await sharp(fileBuffer)
       .resize(800, 600, { fit: 'inside' }) // 最大800x600にリサイズ
       .jpeg({ quality: 70 }) // JPEG形式で圧縮率70%
       .toBuffer();
