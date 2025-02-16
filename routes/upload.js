@@ -3,7 +3,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 const { uploadFile } = require('../services/s3Operations');
 const { isAuthenticated } = require('./auth');
-const { Queue } = require('bull');  // Bullキューを使用
+const Queue = require('bull'); // このように修正
 
 const router = express.Router();
 
